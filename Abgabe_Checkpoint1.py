@@ -66,7 +66,43 @@ def werte_anzeigen(strecke_a, strecke_b):  # Funktion für die Zahlen unter den 
 #-----------------------------
 #Bedienung inkl. Buttons
 #-----------------------------
+button_start = (150, 330, 160, 45)  # Start/Pause-Button: (x, y, Breite, Höhe)
+button_reset = (330, 330, 160, 45)  # Zurücksetzen-Button: (x, y, Breite, Höhe)
 
+
+def button_zeichnen(button, text, farbe):  # zeichnet einen Button mit Text und Farbe
+    x, y, breite, hoehe = button  # Tupel in vier einzelne Variablen auspacken
+    py5.no_stroke()  # keine Umrandung
+    py5.fill(*farbe)  # Füllfarbe; * verteilt (R, G, B) auf drei Werte
+    py5.rect(x, y, breite, hoehe, 8)  # Rechteck mit abgerundeten Ecken (Radius 8)
+    py5.fill(30)  # Textfarbe: fast schwarz
+    py5.text_size(18)  # Schriftgröße 18
+    py5.text_align(py5.CENTER, py5.CENTER)  # Text waagrecht und senkrecht zentrieren
+    py5.text(text, x + breite / 2, y + hoehe / 2)  # Text in die Mitte des Buttons schreiben
+    py5.text_align(py5.LEFT, py5.BASELINE)  # Ausrichtung zurücksetzen, damit andere Texte stimmen
+
+
+def buttons_zeichnen():  # zeichnet beide Buttons
+    if laeuft:  # wenn die Animation läuft ...
+        button_zeichnen(button_start, "Pause", (70, 170, 90))  # ... steht "Pause" auf dem Button
+    else:  # sonst ...
+        button_zeichnen(button_start, "Start", (70, 170, 90))  # ... steht "Start" darauf
+    button_zeichnen(button_reset, "Zurücksetzen", (200, 200, 200))  # grauer Reset-Button
+
+
+def ist_ueber(button):  # prüft, ob die Maus über einem Button ist
+    x, y, breite, hoehe = button  # Tupel auspacken
+    return x < py5.mouse_x < x + breite and y < py5.mouse_y < y + hoehe  # True, wenn Maus im Rechteck
+
+
+def mouse_pressed():  # wird von py5 bei jedem Mausklick automatisch aufgerufen
+    global laeuft  # globale Variable "laeuft" verändern dürfen
+    global zeit  # globale Variable "zeit" verändern dürfen
+    if ist_ueber(button_start):  # Klick auf Start/Pause?
+        laeuft = not laeuft  # umschalten: True wird False und umgekehrt
+    if ist_ueber(button_reset):  # Klick auf Zurücksetzen?
+        zeit = 0  # Zeit auf 0 zurück
+        laeuft = False  # Animation anhalten
 
 
 #-----------------------------
