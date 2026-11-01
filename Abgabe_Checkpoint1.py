@@ -7,7 +7,7 @@ tempo_b = 3.5       # m/s
 vorsprung_b = 14    # m
 
 zeit = 0            #vergangene Zeit in s
-laueft = False      #läuft die Animation gerade?
+laeuft = False      #läuft die Animation gerade?
 
 def zeit_aktualisieren():       #Funktion, welche die Zeit weiterzählt
     global zeit                 #globale Variable "zeit" verändern dürfen
@@ -115,7 +115,10 @@ def draw():
     py5.background(250)                                 #weisser Hintergrund
     zeit_aktualisieren()                                #zeit weiterzählen  (Teil: Feste Werte und Berechnungen)
     strecke_a, strecke_b = strecken_berechnen()         #aktuelle Strecke holen (Teil: Feste Werte und Berechnungen)
-
+    titel_zeichnen()                                    #Überschrift
+    laufbahn_zeichnen(strecke_a, strecke_b)             #Bahnen und Läufer
+    werte_anzeigen(strecke_a, strecke_b)                #Zahlen zeigen
+    buttons_zeichnen()                                  #Buttons
 
 py5.run_sketch()
 
