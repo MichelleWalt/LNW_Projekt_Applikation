@@ -1,23 +1,47 @@
 import py5
 #-----------------------------
-#Feste Werte und Berechnungen
+#Berechnungen
 #-----------------------------
-tempo_a = 4.5       # m/s
-tempo_b = 3.5       # m/s
-vorsprung_b = 14    # m
 
-zeit = 0            #vergangene Zeit in s
-laeuft = False      #läuft die Animation gerade?
+def strecke(zeit, tempo, vorsprung=0):          #Berechnet Distanz zu einem bestimmten Zeitpunkt
+    return vorsprung + (tempo * zeit)           #Formel: Vorsprung + (v * t)
 
-def zeit_aktualisieren():       #Funktion, welche die Zeit weiterzählt
-    global zeit                 #globale Variable "zeit" verändern dürfen
-    if laeuft:                  #nur wenn Animation gerade läuft
-        zeit = zeit + 1 / 60    #Bild = 1/60 s dazuzählen (60 Bilder pro sekunde)
+def schoene_schrittweite(maximum):              #Bestimmt Abstände für Diagramm-Striche
+    if maximum <= 20: return 2                  #Bei kurzen Distanzen oder Zeiten: 2er-Schritte
+    elif maximum <= 50: return 5                #Bei mittleren: 5er-Schritte
+    elif maximum <=100: return 10               #Bei grossen: 10er-Schritte
+    elif maximum <= 200: return 20              #Bei noch grösseren: 20er-Schritte
+    return 50                                   #Ganz grosse Werte: 50er-Schritte
 
-def strecken_berechnen():                         #Funktion, welche die zurückgelegte Strecke n berechnet
-    strecke_a = tempo_a * zeit                    #Strecke A: s = v * t
-    strecke_b = vorsprung_b + tempo_b * zeit      #Strecke B: Vorsprung + (v * t)
-    return strecke_a, strecke_b                   #beide Werte an draw() zurückgeben
+def einholpunkt(tempo_a, tempo_b, vorsprung_b):         #Berechnet, wann und wo A, B einholt
+    if tempo_a <= tempo_b:                              #Wenn A nicht schneller als B ist...
+        return None                                     #...dann gibt es keinen Einholpunkt
+    zeit_t = vorsprung_b / (tempo_a - tempo_b)          #Zeit berechnen: Vorsprung / durch Tempounterschied
+    ort_t = strecke(zeit_t, tempo_a)                    #Ort berechnen: Zeit * Tempo von A
+    return (zeit_t, ort_t)                              #Gibt Zeit und Ort zurück
+
+def achsen_maximum(wert):                               #Rundet Achsen-Ende auf
+    schritt = schoene_schrittweite(wert)                #Holt sich passende Schrittweite
+    return int((wert / schritt) + 1) * schritt          #Berechent nächstes Vielfache dieser Schrittweite
+
+#-----------------------------
+#Einstellungen
+#-----------------------------
+
+bilder_pro_sekunde = 60                 #Animation läuft wie flüssig
+ziel_dauer = 12                         #Programm dauert max. 12 Sekunden
+
+zeit = 0                                #Aktuelle Zeit in der Animation
+laeuft = False                          #schaut, ob Animation gerade läuft
+loesung_zeigen = False                  #schaut, ob Vorhersage im Diagramm sichtbar ist
+aktiver_regler = None                   #Merkt, welcher Regler mit der Maus gezogen wird
+meldung = ""                            #speichert den Text, wenn A, B eingeholt hat
+
+blau = (50, 100, 220)                   #Farbe für Läufer A
+gruen = (50, 160, 70)                   #Farbe für Läufer B
+
+regler_start = 250                      #Koordinate, wo die Regler-Linien starten
+regler_ende = 620                       #Koordinate, wo die Regler-Linie stoppt
 
 #-----------------------------
 #Darstellung
