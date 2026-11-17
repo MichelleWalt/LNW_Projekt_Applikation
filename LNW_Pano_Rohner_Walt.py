@@ -43,6 +43,23 @@ gruen = (50, 160, 70)                   #Farbe für Läufer B
 regler_start = 250                      #Koordinate, wo die Regler-Linien starten
 regler_ende = 620                       #Koordinate, wo die Regler-Linie stoppt
 
+regler = [                              #Liste aller Regler mit Eigenschaften und Startwerten
+    {"text": "Tempo Läufer A (m/s)", "y": 680, "min": 1, "max": 8, "wert": 4.4, "schritt": 0.1},
+    {"text": "Tempo Läufer B (m/s)", "y": 780, "min": 1, "max": 8, "wert": 3.1, "schritt": 0.1},
+    {"text": "Startvorsprung B (m)", "y": 780, "min": 0, "max": 30, "wert": 14, "schritt": 1},
+]
+
+bahn = {"x": 150, "breite": 750, "y_a": 125, "y_b": 195}                    #Position und Grösse der Laufbahn oben
+diagramm = {"x": 150, "y": 560, "breite": 750, "hoehe": 270}                #Position und Grösse des Weg-Zeit-Diagramm
+button_start = (780, 660, 170, 45)                                          #(X, Y, Breite, Höhe) für den Start-Button
+button_reset= (780, 720, 170, 45)                                           #(X, Y, Breite, Höhe) für den Reset-Button
+button_loesung = (780, 780, 170, 45)                                        #(X, Y, Breite, Höhe) für den Lösungs-Button
+
+def tempo_a(): return regler[0]["wert"]                                     #Gibt aktuelles Tempo von A aus Regler 1 zurük
+def tempo_b(): return regler[1]["wert"]                                     #Gibt aktuelles Tempo von B aus Regler 2 zurück
+def vorsprung_b(): return regler[2]["wert"]                                 #Gibt aktuellen Vorsprung aus Regler 3 zurück
+
+
 #-----------------------------
 #Darstellung
 #-----------------------------
