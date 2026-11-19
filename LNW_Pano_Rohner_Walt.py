@@ -156,122 +156,183 @@ def vorsprung_b(): return regler[2]["wert"]  # Hilfsfunktion: Gibt aktuellen Vor
 
 
 # ==============================================================================
+
 # PERSON 3: STEUERUNG, LOGIK & INTERAKTION
+
 # ==============================================================================
 
 def setup():  # Wird 1x beim Programmstart ausgeführt
+
     py5.size(1000, 850)  # Setzt die Fenstergrösse
+
     py5.frame_rate(BILDER_PRO_SEKUNDE)  # Legt fest, wie viele Bilder pro Sekunde berechnet werden
 
 
 def max_zeit():  # Berechnet, wie weit die Zeitachse im Diagramm gehen muss
+
     punkt = einholpunkt(tempo_a(), tempo_b(), vorsprung_b())  # Holt den Treffpunkt
+
     if punkt is None or punkt[0] == 0:  # Wenn sie sich nie treffen (oder bei 0)...
+
         return 20  # ...zeige standardmässig 20 Sekunden an
+
     return achsen_maximum(max(punkt[0] * 1.4, 5))  # ...sonst 40% mehr als die Treffzeit (mindestens 5s)
 
 
 def zeitraffer():  # Macht lange Verfolgungen schneller
+
     return max(1, round(max_zeit() / ZIEL_DAUER))  # Beschleunigt, damit es ca. 'ZIEL_DAUER' Sekunden dauert
 
 
 def zeit_weiterzaehlen():  # Kümmert sich um den Fortschritt der Zeit
+
     global zeit, laeuft, meldung  # Erlaubt das Ändern dieser globalen Variablen
+
     if not laeuft: return  # Bricht ab, wenn auf Pause geschaltet ist
+
     neue_zeit = zeit + zeitraffer() / BILDER_PRO_SEKUNDE  # Errechnet die nächste Zeit (inklusive evtl. Zeitraffer)
+
     punkt = einholpunkt(tempo_a(), tempo_b(), vorsprung_b())  # Schaut, wo der Treffpunkt ist
 
     if punkt is not None and zeit < punkt[0] <= neue_zeit:  # Wenn der Treffpunkt genau in diesem Moment erreicht wird:
+
         zeit = punkt[0]  # Setzt die Zeit exakt auf den Treffpunkt
+
         laeuft = False  # Stoppt die Animation
+
         meldung = f"A holt B nach {punkt[0]:.1f} s bei {punkt[1]:.1f} m ein!"  # Baut die Siegesmeldung
+
         return  # Beendet die Funktion
 
     if neue_zeit >= max_zeit():  # Wenn das Ende des Diagramms erreicht ist:
+
         zeit = max_zeit()  # Bleibe am Ende stehen
+
         laeuft = False  # Stoppe die Animation
+
         if punkt is None:  # Wenn A zu langsam war:
+
             meldung = "A ist nicht schneller als B – A holt B nie ein."  # Baut die Verlierer-Meldung
+
         return  # Beendet die Funktion
 
     zeit = neue_zeit  # Ansonsten: Übernehme die neu berechnete Zeit
 
 
 def regler_gesperrt():  # Prüft, ob Regler blockiert sein sollen
+
     return laeuft  # Regler sind gesperrt, solange die Animation läuft
 
 
 def regler_unter_maus():  # Findet heraus, ob die Maus über einem Regler ist
+
     for r in regler:  # Geht alle Regler durch
+
         if abs(py5.mouse_y - r[
             "y"]) < 15 and regler_start - 15 < py5.mouse_x < regler_ende + 15:  # Prüft Nähe zur Linie
+
             return r  # Gibt den gefundenen Regler zurück
+
     return None  # Keinen gefunden
 
 
 def regler_setzen(r):  # Verändert den Wert eines Reglers beim Ziehen
+
     global zeit, meldung  # Erlaubt Zugriff auf Zeit und Meldung
+
     x = py5.constrain(py5.mouse_x, regler_start, regler_ende)  # Hält die Mauskoordinate innerhalb der Linie
+
     roh = py5.remap(x, regler_start, regler_ende, r["min"], r["max"])  # Rechnet Pixel in Regler-Zahlenwert um
+
     neuer_wert = round(round(roh / r["schritt"]) * r["schritt"],
                        2)  # Rundet auf die eingestellte Schrittweite (z.B. 0.1)
+
     if neuer_wert != r["wert"]:  # Wenn sich der Wert wirklich geändert hat:
+
         r["wert"] = neuer_wert  # Speichere neuen Wert
+
         zeit = 0  # Setze die Animation auf 0 zurück (neue Situation)
+
         meldung = ""  # Lösche alte Meldungen
 
 
 def ist_ueber(button):  # Prüft, ob die Maus über einem Button liegt
+
     x, y, breite, hoehe = button  # Entpackt die Button-Koordinaten
+
     return x < py5.mouse_x < x + breite and y < py5.mouse_y < y + hoehe  # Wahr, wenn Maus innerhalb des Rechtecks ist
 
 
 def start_pause():  # Funktion für den Start/Pause Button
+
     global laeuft, zeit, meldung
+
     if laeuft:  # Wenn es läuft...
+
         laeuft = False  # ...Pause
+
         return
+
     if zeit >= max_zeit(): zeit = 0  # Wenn es schon am Ende ist, fange bei 0 wieder an
+
     meldung = ""  # Lösche Meldung
+
     laeuft = True  # Starte Animation
 
 
 def zuruecksetzen():  # Funktion für den Reset-Button
+
     global laeuft, zeit, meldung
+
     zeit = 0;
     laeuft = False;
     meldung = ""  # Alles auf Anfang setzen
 
 
 def mouse_pressed():  # Wird aufgerufen bei Mausklick
+
     global loesung_zeigen, aktiver_regler
+
     if ist_ueber(button_start):
         start_pause()  # Start/Pause gedrückt?
+
     elif ist_ueber(button_reset):
         zuruecksetzen()  # Reset gedrückt?
+
     elif ist_ueber(button_loesung):
         loesung_zeigen = not loesung_zeigen  # Lösung zeigen umschalten
+
     elif not regler_gesperrt():  # Wenn Regler frei sind:
+
         aktiver_regler = regler_unter_maus()  # Welcher Regler wird angeklickt?
+
         if aktiver_regler is not None: regler_setzen(aktiver_regler)  # Wert direkt anpassen
 
 
 def mouse_dragged():  # Wird aufgerufen beim Ziehen mit gedrückter Maus
+
     if aktiver_regler is not None and not regler_gesperrt():  # Wenn man einen Regler gefasst hat
+
         regler_setzen(aktiver_regler)  # Wert kontinuierlich anpassen
 
 
 def mouse_released():  # Wird aufgerufen beim Loslassen der Maus
+
     global aktiver_regler
+
     aktiver_regler = None  # Regler loslassen
 
 
 def key_pressed():  # Wird bei Tastendruck aufgerufen
+
     global loesung_zeigen
+
     if py5.key == " ":
         start_pause()  # Leertaste = Start/Pause
+
     elif py5.key == "r":
         zuruecksetzen()  # r = Reset
+
     elif py5.key == "l":
         loesung_zeigen = not loesung_zeigen  # l = Lösung zeigen
 
