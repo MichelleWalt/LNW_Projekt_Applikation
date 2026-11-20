@@ -71,9 +71,7 @@ def vorsprung_b():
 
 
 # ==============================================================================
-STEUERUNG, LOGIK & INTERAKTION
-
-
+#STEUERUNG, LOGIK & INTERAKTION
 # ==============================================================================
 
 def setup():  # Wird 1x beim Programmstart ausgeführt
